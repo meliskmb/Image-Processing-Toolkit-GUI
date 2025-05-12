@@ -8,6 +8,8 @@ from PyQt5.QtCore import Qt
 import numpy as np
 from PIL import Image
 
+from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
+
 class ImageProcessor(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -23,14 +25,24 @@ class ImageProcessor(QMainWindow):
         # Buton
         self.open_button = QPushButton("Görüntü Aç")
         self.open_button.clicked.connect(self.load_image)
+        self.mean_button = QPushButton("Ortalama Filtresi")
+        self.mean_button.clicked.connect(self.apply_mean)
+        self.median_button = QPushButton("Ortanca Filtresi")
+        self.median_button.clicked.connect(self.apply_median)
+        self.edge_button = QPushButton("Kenar Tespiti")
+        self.edge_button.clicked.connect(self.apply_edge)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
         layout.addWidget(self.image_label)
+        layout.addWidget(self.mean_button)
+        layout.addWidget(self.median_button)
+        layout.addWidget(self.edge_button)
 
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
 
     def load_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "Görüntü Seç", "", "Image Files (*.png *.jpg *.bmp *.pnm)")
@@ -68,6 +80,33 @@ class ImageProcessor(QMainWindow):
         path, _ = QFileDialog.getSaveFileName(self, "Görüntüyü Kaydet", "", "PNG Files (*.png);;JPG Files (*.jpg)")
         if path and self.original_image:
             self.original_image.save(path)
+    
+    def apply_mean(self):
+        if self.original_image:
+            gray = self.original_image.convert("L")  # Griye çevir
+            gray_np = np.array(gray)
+            filtered_np = apply_mean_filter(gray_np)
+            filtered_image = Image.fromarray(filtered_np)
+            self.show_image(filtered_image)
+
+    def apply_median(self):
+        if self.original_image:
+            gray = self.original_image.convert("L")
+            gray_np = np.array(gray)
+            filtered_np = apply_median_filter(gray_np)
+            filtered_image = Image.fromarray(filtered_np)
+            self.show_image(filtered_image)
+
+    def apply_edge(self):
+        if self.original_image:
+            gray = self.original_image.convert("L")
+            gray_np = np.array(gray)
+            filtered_np = apply_edge_filter(gray_np)
+            filtered_image = Image.fromarray(filtered_np)
+            self.show_image(filtered_image)
+
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

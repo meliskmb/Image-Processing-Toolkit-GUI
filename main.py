@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton,
     QFileDialog, QVBoxLayout, QWidget, QMenu, QAction
 )
+from PyQt5.QtWidgets import QInputDialog  # input kutusu için
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt
 import numpy as np
@@ -11,6 +12,7 @@ from PIL import Image
 from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
 from filters.histogram import calculate_histogram, plot_histogram
 from filters.histogram import histogram_equalization, contrast_stretching
+from filters.thresholding import manual_threshold
 
 
 
@@ -43,6 +45,8 @@ class ImageProcessor(QMainWindow):
         self.equalize_button.clicked.connect(self.equalize_histogram)
         self.stretch_button = QPushButton("Kontrast Germe")
         self.stretch_button.clicked.connect(self.stretch_contrast)
+        self.manual_thresh_button = QPushButton("Manuel Eşikleme")
+        self.manual_thresh_button.clicked.connect(self.apply_manual_threshold)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -53,6 +57,7 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.hist_button)
         layout.addWidget(self.equalize_button)
         layout.addWidget(self.stretch_button)
+        layout.addWidget(self.manual_thresh_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -175,6 +180,23 @@ class ImageProcessor(QMainWindow):
         # # Kontrast germe test
         # stretched_img.save("stretched_debug.png")
 
+    def apply_manual_threshold(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+
+        threshold, ok = QInputDialog.getInt(self, "Eşik Değeri", "0–255 arasında bir değer girin:", min=0, max=255)
+
+        if ok:
+            binary_np = manual_threshold(gray_np, threshold)
+            binary_img = Image.fromarray(binary_np)
+            self.show_image(binary_img)
+            self.processed_image = binary_img
 
 
 

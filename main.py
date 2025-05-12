@@ -12,6 +12,8 @@ from PIL import Image
 from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
 from filters.histogram import calculate_histogram, plot_histogram, histogram_equalization, contrast_stretching
 from filters.thresholding import manual_threshold, otsu_threshold, kapur_threshold
+from filters.morphology import dilation, erosion
+
 
 
 class ImageProcessor(QMainWindow):
@@ -49,6 +51,10 @@ class ImageProcessor(QMainWindow):
         self.otsu_button.clicked.connect(self.apply_otsu)
         self.kapur_button = QPushButton("Kapur Eşikleme")
         self.kapur_button.clicked.connect(self.apply_kapur)
+        self.dilate_button = QPushButton("Dilation (Genişletme)")
+        self.dilate_button.clicked.connect(self.apply_dilation)
+        self.erode_button = QPushButton("Erosion (Aşındırma)")
+        self.erode_button.clicked.connect(self.apply_erosion)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -62,6 +68,8 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.manual_thresh_button)
         layout.addWidget(self.otsu_button)
         layout.addWidget(self.kapur_button)
+        layout.addWidget(self.dilate_button)
+        layout.addWidget(self.erode_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -230,6 +238,21 @@ class ImageProcessor(QMainWindow):
         self.show_image(binary_img)
         self.processed_image = binary_img
 
+    def apply_dilation(self):
+        if self.processed_image:
+            binary = np.array(self.processed_image.convert("L"))
+            dilated = dilation(binary)
+            dilated_img = Image.fromarray(dilated)
+            self.show_image(dilated_img)
+            self.processed_image = dilated_img
+
+    def apply_erosion(self):
+        if self.processed_image:
+            binary = np.array(self.processed_image.convert("L"))
+            eroded = erosion(binary)
+            eroded_img = Image.fromarray(eroded)
+            self.show_image(eroded_img)
+            self.processed_image = eroded_img
 
 
 if __name__ == "__main__":

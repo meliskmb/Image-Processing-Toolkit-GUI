@@ -36,3 +36,32 @@ def otsu_threshold(image_array):
             threshold = t
 
     return np.where(image_array > threshold, 255, 0).astype(np.uint8)
+
+def kapur_threshold(image_array):
+    hist, _ = np.histogram(image_array, bins=256, range=(0, 256))
+    hist = hist.astype(np.float64)
+    hist = hist / hist.sum()  # normalize et
+
+    max_entropy = -np.inf
+    threshold = 0
+
+    for t in range(1, 255):
+        p1 = hist[:t]
+        p2 = hist[t:]
+
+        w1 = p1.sum()
+        w2 = p2.sum()
+
+        if w1 == 0 or w2 == 0:
+            continue
+
+        H1 = -np.sum(p1 / w1 * np.log(p1 / w1 + 1e-12)) # 0'a bölmeyi engelle
+        H2 = -np.sum(p2 / w2 * np.log(p2 / w2 + 1e-12))
+
+        total_entropy = H1 + H2
+
+        if total_entropy > max_entropy:
+            max_entropy = total_entropy
+            threshold = t
+
+    return np.where(image_array > threshold, 255, 0).astype(np.uint8)

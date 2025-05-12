@@ -11,7 +11,7 @@ from PIL import Image
 
 from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
 from filters.histogram import calculate_histogram, plot_histogram, histogram_equalization, contrast_stretching
-from filters.thresholding import manual_threshold, otsu_threshold
+from filters.thresholding import manual_threshold, otsu_threshold, kapur_threshold
 
 
 class ImageProcessor(QMainWindow):
@@ -47,6 +47,8 @@ class ImageProcessor(QMainWindow):
         self.manual_thresh_button.clicked.connect(self.apply_manual_threshold)
         self.otsu_button = QPushButton("Otsu Eşikleme")
         self.otsu_button.clicked.connect(self.apply_otsu)
+        self.kapur_button = QPushButton("Kapur Eşikleme")
+        self.kapur_button.clicked.connect(self.apply_kapur)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -59,6 +61,7 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.stretch_button)
         layout.addWidget(self.manual_thresh_button)
         layout.addWidget(self.otsu_button)
+        layout.addWidget(self.kapur_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -212,6 +215,21 @@ class ImageProcessor(QMainWindow):
         binary_img = Image.fromarray(binary_np)
         self.show_image(binary_img)
         self.processed_image = binary_img
+
+    def apply_kapur(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+        binary_np = kapur_threshold(gray_np)
+        binary_img = Image.fromarray(binary_np)
+        self.show_image(binary_img)
+        self.processed_image = binary_img
+
 
 
 if __name__ == "__main__":

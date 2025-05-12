@@ -90,11 +90,13 @@ class ImageProcessor(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
+    # TO-DO = Geri Al özelliği ekle
 
     def load_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "Görüntü Seç", "", "Image Files (*.png *.jpg *.bmp *.pnm)")
         if path:
             self.original_image = Image.open(path).convert("RGB")
+            self.processed_image = None
             self.show_image(self.original_image)
 
     def show_image(self, pil_image):
@@ -294,6 +296,8 @@ class ImageProcessor(QMainWindow):
             painter.end()
             self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio))
 
+    # FIX fotoğrafı yükledikten hemen ardından yapmıyor.
+    
     def apply_skeleton(self):
         if self.processed_image:
             gray = self.processed_image.convert("L")

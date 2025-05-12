@@ -17,6 +17,8 @@ class ImageProcessor(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
 
         self.original_image = None
+        self.processed_image = None
+
         self.image_label = QLabel("Bir görüntü seçin", self)
         self.image_label.setAlignment(Qt.AlignCenter)
         self.image_label.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -78,8 +80,11 @@ class ImageProcessor(QMainWindow):
 
     def save_image(self):
         path, _ = QFileDialog.getSaveFileName(self, "Görüntüyü Kaydet", "", "PNG Files (*.png);;JPG Files (*.jpg)")
-        if path and self.original_image:
-            self.original_image.save(path)
+        if path:
+            # İşlenmiş görüntü varsa onu kaydet, yoksa orijinali
+            image_to_save = self.processed_image if self.processed_image else self.original_image
+            if image_to_save:
+                image_to_save.save(path)
     
     def apply_mean(self):
         if self.original_image:
@@ -88,6 +93,7 @@ class ImageProcessor(QMainWindow):
             filtered_np = apply_mean_filter(gray_np)
             filtered_image = Image.fromarray(filtered_np)
             self.show_image(filtered_image)
+            self.processed_image = filtered_image   
 
     def apply_median(self):
         if self.original_image:
@@ -96,6 +102,7 @@ class ImageProcessor(QMainWindow):
             filtered_np = apply_median_filter(gray_np)
             filtered_image = Image.fromarray(filtered_np)
             self.show_image(filtered_image)
+            self.processed_image = filtered_image 
 
     def apply_edge(self):
         if self.original_image:
@@ -104,6 +111,7 @@ class ImageProcessor(QMainWindow):
             filtered_np = apply_edge_filter(gray_np)
             filtered_image = Image.fromarray(filtered_np)
             self.show_image(filtered_image)
+            self.processed_image = filtered_image 
 
 
 

@@ -10,6 +10,8 @@ from PIL import Image
 
 from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
 from filters.histogram import calculate_histogram, plot_histogram
+from filters.histogram import histogram_equalization, contrast_stretching
+
 
 
 class ImageProcessor(QMainWindow):
@@ -37,6 +39,10 @@ class ImageProcessor(QMainWindow):
         self.edge_button.clicked.connect(self.apply_edge)
         self.hist_button = QPushButton("Histogram Göster")
         self.hist_button.clicked.connect(self.show_histogram)
+        self.equalize_button = QPushButton("Histogram Eşitleme")
+        self.equalize_button.clicked.connect(self.equalize_histogram)
+        self.stretch_button = QPushButton("Kontrast Germe")
+        self.stretch_button.clicked.connect(self.stretch_contrast)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -45,6 +51,8 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.median_button)
         layout.addWidget(self.edge_button)
         layout.addWidget(self.hist_button)
+        layout.addWidget(self.equalize_button)
+        layout.addWidget(self.stretch_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -60,6 +68,7 @@ class ImageProcessor(QMainWindow):
     def show_image(self, pil_image):
         # Pillow görüntüsünü numpy dizisine dönüştür
         np_image = np.array(pil_image)
+        np_image = np.clip(np_image, 0, 255).astype(np.uint8)
 
         # RGB mi kontrol et
         if len(np_image.shape) == 3 and np_image.shape[2] == 3:
@@ -129,6 +138,43 @@ class ImageProcessor(QMainWindow):
         gray_np = np.array(gray)
         histogram = calculate_histogram(gray_np)
         plot_histogram(histogram)
+
+    def equalize_histogram(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+        equalized_np = histogram_equalization(gray_np)
+        equalized_img = Image.fromarray(equalized_np)
+        self.show_image(equalized_img)
+        self.processed_image = equalized_img
+
+    def stretch_contrast(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+        # Kontrast germe test
+        # print("Min:", np.min(gray_np), "Max:", np.max(gray_np))
+        # print("Benzersiz değerler:", np.unique(gray_np))
+
+
+        stretched_np = contrast_stretching(gray_np)
+        stretched_img = Image.fromarray(stretched_np)
+        self.show_image(stretched_img)
+        self.processed_image = stretched_img
+
+        # # Kontrast germe test
+        # stretched_img.save("stretched_debug.png")
+
 
 
 

@@ -9,6 +9,8 @@ import numpy as np
 from PIL import Image
 
 from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
+from filters.histogram import calculate_histogram, plot_histogram
+
 
 class ImageProcessor(QMainWindow):
     def __init__(self):
@@ -24,7 +26,7 @@ class ImageProcessor(QMainWindow):
         self.image_label.setContextMenuPolicy(Qt.CustomContextMenu)
         self.image_label.customContextMenuRequested.connect(self.show_context_menu)
 
-        # Buton
+        # Butonlar
         self.open_button = QPushButton("Görüntü Aç")
         self.open_button.clicked.connect(self.load_image)
         self.mean_button = QPushButton("Ortalama Filtresi")
@@ -33,6 +35,8 @@ class ImageProcessor(QMainWindow):
         self.median_button.clicked.connect(self.apply_median)
         self.edge_button = QPushButton("Kenar Tespiti")
         self.edge_button.clicked.connect(self.apply_edge)
+        self.hist_button = QPushButton("Histogram Göster")
+        self.hist_button.clicked.connect(self.show_histogram)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -40,6 +44,7 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.mean_button)
         layout.addWidget(self.median_button)
         layout.addWidget(self.edge_button)
+        layout.addWidget(self.hist_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -113,6 +118,17 @@ class ImageProcessor(QMainWindow):
             self.show_image(filtered_image)
             self.processed_image = filtered_image 
 
+    def show_histogram(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+        histogram = calculate_histogram(gray_np)
+        plot_histogram(histogram)
 
 
 

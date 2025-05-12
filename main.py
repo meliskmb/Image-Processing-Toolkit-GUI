@@ -39,8 +39,20 @@ class ImageProcessor(QMainWindow):
             self.show_image(self.original_image)
 
     def show_image(self, pil_image):
-        data = pil_image.tobytes("raw", "RGB")
-        qimage = QImage(data, pil_image.width, pil_image.height, QImage.Format_RGB888)
+        # Pillow görüntüsünü numpy dizisine dönüştür
+        np_image = np.array(pil_image)
+
+        # RGB mi kontrol et
+        if len(np_image.shape) == 3 and np_image.shape[2] == 3:
+            height, width, channel = np_image.shape
+            bytes_per_line = 3 * width
+            qimage = QImage(np_image.data, width, height, bytes_per_line, QImage.Format_RGB888)
+        else:
+            # Gri görüntü ise
+            height, width = np_image.shape
+            bytes_per_line = width
+            qimage = QImage(np_image.data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+
         pixmap = QPixmap.fromImage(qimage)
         self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio))
 

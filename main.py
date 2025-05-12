@@ -1,10 +1,10 @@
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton,
-    QFileDialog, QVBoxLayout, QWidget, QMenu, QAction
+    QFileDialog, QVBoxLayout, QWidget, QMenu, QAction, QMessageBox
 )
 from PyQt5.QtWidgets import QInputDialog  # input kutusu için
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 from PyQt5.QtCore import Qt
 import numpy as np
 from PIL import Image
@@ -13,6 +13,7 @@ from filters.convolution import apply_mean_filter, apply_median_filter, apply_ed
 from filters.histogram import calculate_histogram, plot_histogram, histogram_equalization, contrast_stretching
 from filters.thresholding import manual_threshold, otsu_threshold, kapur_threshold
 from filters.morphology import dilation, erosion
+from filters.geometry import compute_centroid, skeletonize
 
 
 
@@ -55,6 +56,10 @@ class ImageProcessor(QMainWindow):
         self.dilate_button.clicked.connect(self.apply_dilation)
         self.erode_button = QPushButton("Erosion (Aşındırma)")
         self.erode_button.clicked.connect(self.apply_erosion)
+        self.centroid_button = QPushButton("Ağırlık Merkezi Hesapla")
+        self.centroid_button.clicked.connect(self.show_centroid)
+        self.skeleton_button = QPushButton("İskelet Çıkar")
+        self.skeleton_button.clicked.connect(self.apply_skeleton)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -70,6 +75,9 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.kapur_button)
         layout.addWidget(self.dilate_button)
         layout.addWidget(self.erode_button)
+        layout.addWidget(self.centroid_button)
+        layout.addWidget(self.skeleton_button)
+
 
         container = QWidget()
         container.setLayout(layout)
@@ -253,6 +261,47 @@ class ImageProcessor(QMainWindow):
             eroded_img = Image.fromarray(eroded)
             self.show_image(eroded_img)
             self.processed_image = eroded_img
+
+    def show_centroid(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        else:
+            return
+
+        binary = np.array(gray)
+        if not np.array_equal(np.unique(binary), [0, 255]):
+            QMessageBox.warning(self, "Uyarı", "Lütfen önce görüntüyü eşikleme ile ikili forma dönüştürün.")
+            return
+
+        result_img = self.processed_image.convert("RGB")
+        draw = QImage(result_img.tobytes(), result_img.width, result_img.height, result_img.width * 3, QImage.Format_RGB888)
+        centroid = compute_centroid(binary)
+
+        if centroid:
+            pixmap = QPixmap.fromImage(draw)
+            painter = QPainter(pixmap)
+            pen = QPen(Qt.red)
+            pen.setWidth(6)
+            painter.setPen(pen)
+            painter.drawPoint(*centroid)
+            painter.end()
+            self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), Qt.KeepAspectRatio))
+
+    def apply_skeleton(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        else:
+            return
+
+        binary = np.array(gray)
+        if not np.array_equal(np.unique(binary), [0, 255]):
+            QMessageBox.warning(self, "Uyarı", "İskelet çıkarımı için önce eşikleme yapmalısınız.")
+            return
+
+        skeleton = skeletonize(binary)
+        skeleton_img = Image.fromarray(skeleton)
+        self.show_image(skeleton_img)
+        self.processed_image = skeleton_img
 
 
 if __name__ == "__main__":

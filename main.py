@@ -9,7 +9,7 @@ from PyQt5.QtCore import Qt
 import numpy as np
 from PIL import Image
 
-from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter
+from filters.convolution import apply_mean_filter, apply_median_filter, apply_edge_filter, apply_smoothing_filter, apply_sharpen_filter
 from filters.histogram import calculate_histogram, plot_histogram, histogram_equalization, contrast_stretching
 from filters.thresholding import manual_threshold, otsu_threshold, kapur_threshold
 from filters.morphology import dilation, erosion
@@ -60,6 +60,10 @@ class ImageProcessor(QMainWindow):
         self.centroid_button.clicked.connect(self.show_centroid)
         self.skeleton_button = QPushButton("İskelet Çıkar")
         self.skeleton_button.clicked.connect(self.apply_skeleton)
+        self.smooth_button = QPushButton("Yumuşatma Filtresi")
+        self.smooth_button.clicked.connect(self.apply_smoothing)
+        self.sharpen_button = QPushButton("Keskinleştirme Filtresi")
+        self.sharpen_button.clicked.connect(self.apply_sharpening)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -77,6 +81,9 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.erode_button)
         layout.addWidget(self.centroid_button)
         layout.addWidget(self.skeleton_button)
+        layout.addWidget(self.smooth_button)
+        layout.addWidget(self.sharpen_button)
+
 
 
         container = QWidget()
@@ -302,6 +309,34 @@ class ImageProcessor(QMainWindow):
         skeleton_img = Image.fromarray(skeleton)
         self.show_image(skeleton_img)
         self.processed_image = skeleton_img
+
+    def apply_smoothing(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+        smoothed = apply_smoothing_filter(gray_np)
+        result_img = Image.fromarray(np.clip(smoothed, 0, 255).astype(np.uint8))
+        self.show_image(result_img)
+        self.processed_image = result_img
+
+    def apply_sharpening(self):
+        if self.processed_image:
+            gray = self.processed_image.convert("L")
+        elif self.original_image:
+            gray = self.original_image.convert("L")
+        else:
+            return
+
+        gray_np = np.array(gray)
+        sharpened = apply_sharpen_filter(gray_np)
+        result_img = Image.fromarray(np.clip(sharpened, 0, 255).astype(np.uint8))
+        self.show_image(result_img)
+        self.processed_image = result_img
 
 
 if __name__ == "__main__":

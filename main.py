@@ -15,6 +15,8 @@ from filters.thresholding import manual_threshold, otsu_threshold, kapur_thresho
 from filters.morphology import dilation, erosion
 from filters.geometry import compute_centroid, skeletonize, rotate_image, shear_image, flip_horizontal, flip_vertical
 
+#TO-DO: geri al ve kaydet ekle
+
 class ImageProcessor(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -30,13 +32,14 @@ class ImageProcessor(QMainWindow):
         self.processed_image_label = QLabel("İşlenmiş Görüntü", self)
         self.processed_image_label.setAlignment(Qt.AlignCenter)
 
-        self.original_image_label.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.original_image_label.customContextMenuRequested.connect(self.show_context_menu)
+        self.processed_image_label.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.processed_image_label.customContextMenuRequested.connect(self.show_context_menu_processed)
+
 
         self.open_button = QPushButton("Görüntü Aç")
         self.open_button.clicked.connect(self.load_image)
 
-        # Filtre Butonları
+        # Butonlar
         self.mean_button = QPushButton("Ortalama Filtresi")
         self.mean_button.clicked.connect(self.apply_mean)
         self.median_button = QPushButton("Ortanca Filtresi")
@@ -76,7 +79,6 @@ class ImageProcessor(QMainWindow):
         self.flip_v_button = QPushButton("Dikey Aynalama")
         self.flip_v_button.clicked.connect(self.apply_flip_vertical)
 
-        # Görselleri yan yana tutan layout
         image_layout = QHBoxLayout()
         image_layout.addWidget(self.original_image_label)
         image_layout.addWidget(self.processed_image_label)
@@ -132,22 +134,22 @@ class ImageProcessor(QMainWindow):
         self.processed_image_label.setPixmap(pixmap.scaled(
             self.processed_image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
 
-    def show_context_menu(self, pos):
-        if self.original_image:
+
+    def show_context_menu_processed(self, pos):
+        if self.processed_image:
             menu = QMenu(self)
             save_action = QAction("Görüntüyü Kaydet", self)
-            save_action.triggered.connect(self.save_image)
+            save_action.triggered.connect(self.save_processed_image)
             menu.addAction(save_action)
-            menu.exec_(self.original_image_label.mapToGlobal(pos))
+            menu.exec_(self.processed_image_label.mapToGlobal(pos))
 
-    def save_image(self):
+
+    def save_processed_image(self):
         path, _ = QFileDialog.getSaveFileName(self, "Görüntüyü Kaydet", "", "PNG Files (*.png);;JPG Files (*.jpg)")
-        if path:
-            image_to_save = self.processed_image if self.processed_image else self.original_image
-            if image_to_save:
-                image_to_save.save(path)
+        if path and self.processed_image:
+            self.processed_image.save(path)
 
-    # --- Filtre Fonksiyonları ---
+
     def apply_mean(self):
         if self.original_image:
             gray = self.original_image.convert("L")

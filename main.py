@@ -175,38 +175,38 @@ class ImageProcessor(QMainWindow):
             self.processed_image = img
 
     def show_histogram(self):
-        if self.processed_image:
-            gray = self.processed_image.convert("L")
-        elif self.original_image:
-            gray = self.original_image.convert("L")
-        else:
+        if not self.original_image:
             return
+       
+        gray = self.original_image.convert("L")
         histogram = calculate_histogram(np.array(gray))
         plot_histogram(histogram)
 
     def equalize_histogram(self):
-        img = self.processed_image or self.original_image
-        if img:
-            gray = img.convert("L")
-            result = histogram_equalization(np.array(gray))
-            out = Image.fromarray(result)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+        
+        gray = self.original_image.convert("L")
+        result = histogram_equalization(np.array(gray))
+        out = Image.fromarray(result)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def stretch_contrast(self):
-        img = self.processed_image or self.original_image
-        if img:
-            gray = img.convert("L")
-            result = contrast_stretching(np.array(gray))
-            out = Image.fromarray(result)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+
+        gray = self.original_image.convert("L")
+        result = contrast_stretching(np.array(gray))
+        out = Image.fromarray(result)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_manual_threshold(self):
-        img = self.processed_image or self.original_image
-        if not img:
+        if not self.original_image:
             return
-        gray = img.convert("L")
+
+        gray = self.original_image.convert("L")
         value, ok = QInputDialog.getInt(self, "Eşik Değeri", "0–255:", min=0, max=255)
         if ok:
             binary = manual_threshold(np.array(gray), value)
@@ -215,38 +215,44 @@ class ImageProcessor(QMainWindow):
             self.processed_image = out
 
     def apply_otsu(self):
-        img = self.processed_image or self.original_image
-        if img:
-            gray = img.convert("L")
-            binary = otsu_threshold(np.array(gray))
-            out = Image.fromarray(binary)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+
+        gray = self.original_image.convert("L")
+        binary = otsu_threshold(np.array(gray))
+        out = Image.fromarray(binary)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_kapur(self):
-        img = self.processed_image or self.original_image
-        if img:
-            gray = img.convert("L")
-            binary = kapur_threshold(np.array(gray))
-            out = Image.fromarray(binary)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+        
+        gray = self.original_image.convert("L")
+        binary = kapur_threshold(np.array(gray))
+        out = Image.fromarray(binary)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_dilation(self):
-        if self.processed_image:
-            binary = np.array(self.processed_image.convert("L"))
-            result = dilation(binary)
-            out = Image.fromarray(result)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+        
+        binary = np.array(self.original_image.convert("L"))
+        result = dilation(binary)
+        out = Image.fromarray(result)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_erosion(self):
-        if self.processed_image:
-            binary = np.array(self.processed_image.convert("L"))
-            result = erosion(binary)
-            out = Image.fromarray(result)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+        
+        binary = np.array(self.original_image.convert("L"))
+        result = erosion(binary)
+        out = Image.fromarray(result)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def show_centroid(self):
         if self.processed_image:
@@ -278,22 +284,24 @@ class ImageProcessor(QMainWindow):
             self.processed_image = out
 
     def apply_smoothing(self):
-        img = self.processed_image or self.original_image
-        if img:
-            gray = img.convert("L")
-            result = apply_smoothing_filter(np.array(gray))
-            out = Image.fromarray(result)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+          
+        gray = self.original_image.convert("L")
+        result = apply_smoothing_filter(np.array(gray))
+        out = Image.fromarray(result)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_sharpening(self):
-        img = self.processed_image or self.original_image
-        if img:
-            gray = img.convert("L")
-            result = apply_sharpen_filter(np.array(gray))
-            out = Image.fromarray(result)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+        
+        gray = self.original_image.convert("L")
+        result = apply_sharpen_filter(np.array(gray))
+        out = Image.fromarray(result)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_rotation(self):
         img = self.processed_image or self.original_image
@@ -303,11 +311,12 @@ class ImageProcessor(QMainWindow):
             self.processed_image = out
 
     def apply_shearing(self):
-        img = self.processed_image or self.original_image
-        if img:
-            out = shear_image(img, shear_x=0.2, shear_y=0)
-            self.show_processed_image(out)
-            self.processed_image = out
+        if not self.original_image:
+            return
+        
+        out = shear_image(self.original_image, shear_x=0.2, shear_y=0)
+        self.show_processed_image(out)
+        self.processed_image = out
 
     def apply_flip_horizontal(self):
         img = self.processed_image or self.original_image

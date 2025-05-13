@@ -20,6 +20,7 @@ def apply_median_filter(image_array, kernel_size=3):
 
     return output
 
+# TO-DO: farklı kernelle çalış, perwitt ve sobel
 def apply_edge_filter(image_array):
     kernel = np.array([[-1, -1, -1],
                        [-1,  8, -1],

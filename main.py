@@ -13,9 +13,9 @@ from filters.convolution import apply_mean_filter, apply_median_filter, apply_ed
 from filters.histogram import calculate_histogram, plot_histogram, histogram_equalization, contrast_stretching
 from filters.thresholding import manual_threshold, otsu_threshold, kapur_threshold
 from filters.morphology import dilation, erosion
-from filters.geometry import compute_centroid, skeletonize
+from filters.geometry import compute_centroid, skeletonize, rotate_image, shear_image, flip_horizontal, flip_vertical
 
-
+# TO-DO: ortalamada orijinal resim üzerinde yapıyor, diğerlerinde önceden üzerinde yapılmış filtreleme işlemi olan fotoğraf üzerinden yapıyor. Düzelt.
 
 class ImageProcessor(QMainWindow):
     def __init__(self):
@@ -64,6 +64,14 @@ class ImageProcessor(QMainWindow):
         self.smooth_button.clicked.connect(self.apply_smoothing)
         self.sharpen_button = QPushButton("Keskinleştirme Filtresi")
         self.sharpen_button.clicked.connect(self.apply_sharpening)
+        self.rotate_button = QPushButton("90° Döndür")
+        self.rotate_button.clicked.connect(self.apply_rotation)
+        self.shear_button = QPushButton("X Yönünde Shearing")
+        self.shear_button.clicked.connect(self.apply_shearing)
+        self.flip_h_button = QPushButton("Yatay Aynalama")
+        self.flip_h_button.clicked.connect(self.apply_flip_horizontal)
+        self.flip_v_button = QPushButton("Dikey Aynalama")
+        self.flip_v_button.clicked.connect(self.apply_flip_vertical)
 
         layout = QVBoxLayout()
         layout.addWidget(self.open_button)
@@ -83,8 +91,10 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.skeleton_button)
         layout.addWidget(self.smooth_button)
         layout.addWidget(self.sharpen_button)
-
-
+        layout.addWidget(self.rotate_button)
+        layout.addWidget(self.shear_button)
+        layout.addWidget(self.flip_h_button)
+        layout.addWidget(self.flip_v_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -342,9 +352,46 @@ class ImageProcessor(QMainWindow):
         self.show_image(result_img)
         self.processed_image = result_img
 
+    def apply_rotation(self):
+        image = self.processed_image or self.original_image
+        if not image:
+            return
+
+        rotated_img = rotate_image(image, angle_deg=90)
+        self.show_image(rotated_img)
+        self.processed_image = rotated_img
+
+    def apply_shearing(self):
+        image = self.processed_image or self.original_image
+        if not image:
+            return
+
+        sheared_img = shear_image(image, shear_x=0.2, shear_y=0.0)
+        self.show_image(sheared_img)
+        self.processed_image = sheared_img
+
+    def apply_flip_horizontal(self):
+        image = self.processed_image or self.original_image
+        if not image:
+            return
+
+        flipped_img = flip_horizontal(image)
+        self.show_image(flipped_img)
+        self.processed_image = flipped_img
+
+    def apply_flip_vertical(self):
+        image = self.processed_image or self.original_image
+        if not image:
+            return
+
+        flipped_img = flip_vertical(image)
+        self.show_image(flipped_img)
+        self.processed_image = flipped_img
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = ImageProcessor()
     window.show()
     sys.exit(app.exec_())
+

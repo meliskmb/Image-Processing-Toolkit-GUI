@@ -164,6 +164,57 @@ class ImageProcessor(QMainWindow):
         container.setLayout(main_layout)
         self.setCentralWidget(container)
 
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #FFE5EC;
+                font-family: 'Segoe UI', sans-serif;
+                font-size: 13px;
+                color: #3A0CA3;
+                font-weight: bold;
+            }
+
+            QGroupBox {
+                background-color: #FFC2D1;
+                border: 1px solid #FFB3C6;
+                border-radius: 6px;
+                margin-top: 10px;
+                padding: 5px;
+            }
+
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top center;
+                padding: 4px;
+                font-size: 13px;
+                font-weight: bold;
+                color: #3A0CA3;
+            }
+
+            QPushButton {
+                background-color: #FFB3C6;
+                color: #3A0CA3;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 6px;
+                font-weight: bold;
+            }
+
+            QPushButton:hover {
+                background-color: #FF8FAB;
+                color: black;
+            }
+
+            QLabel {
+                color: #3A0CA3;
+                font-weight: bold;
+            }
+
+            QScrollArea {
+                border: none;
+            }
+        """)
+
+
     def load_image(self):
         path, _ = QFileDialog.getOpenFileName(self, "Görüntü Seç", "", "Image Files (*.png *.jpg *.bmp *.pnm)")
         if path:

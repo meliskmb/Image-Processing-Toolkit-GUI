@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton,
     QFileDialog, QVBoxLayout, QHBoxLayout, QWidget, QMenu, QAction, QMessageBox
 )
-from PyQt5.QtWidgets import QInputDialog, QGroupBox
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtWidgets import QInputDialog, QGroupBox, QScrollArea
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 from PyQt5.QtCore import Qt, QTimer
 import numpy as np
 from PIL import Image
@@ -128,7 +128,6 @@ class ImageProcessor(QMainWindow):
         geom_layout.addWidget(self.flip_v_button)
         geom_group.setLayout(geom_layout)
 
-
         censke_group = QGroupBox("centroid & skeleton")
         censke_layout = QVBoxLayout()
         censke_layout.addWidget(self.centroid_button)
@@ -143,18 +142,23 @@ class ImageProcessor(QMainWindow):
         control_layout.addWidget(self.flash_label)
         control_group.setLayout(control_layout)
 
-        groups_column = QVBoxLayout()
-        groups_column.addWidget(control_group)
-        groups_column.addWidget(filter_group)
-        groups_column.addWidget(hist_group)
-        groups_column.addWidget(thresh_group)
-        groups_column.addWidget(morph_group)
-        groups_column.addWidget(geom_group)
-        groups_column.addWidget(censke_group)
+        scroll_content = QWidget()
+        scroll_layout = QVBoxLayout(scroll_content)
+        scroll_layout.addWidget(control_group)
+        scroll_layout.addWidget(filter_group)
+        scroll_layout.addWidget(hist_group)
+        scroll_layout.addWidget(thresh_group)
+        scroll_layout.addWidget(morph_group)
+        scroll_layout.addWidget(geom_group)
+        scroll_layout.addWidget(censke_group)
+
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setWidget(scroll_content)
 
         main_layout = QHBoxLayout()
         main_layout.addLayout(image_column, 3)  
-        main_layout.addLayout(groups_column, 2)
+        main_layout.addWidget(scroll_area, 2)
 
         container = QWidget()
         container.setLayout(main_layout)

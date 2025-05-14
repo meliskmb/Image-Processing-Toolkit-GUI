@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QLabel, QPushButton,
     QFileDialog, QVBoxLayout, QHBoxLayout, QWidget, QMenu, QAction, QMessageBox
 )
-from PyQt5.QtWidgets import QInputDialog
+from PyQt5.QtWidgets import QInputDialog, QGroupBox
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt, QTimer
 import numpy as np
@@ -87,40 +87,77 @@ class ImageProcessor(QMainWindow):
         self.commit_button = QPushButton("Değişikliği Kaydet")
         self.commit_button.clicked.connect(self.commit_changes)
 
+        image_column = QVBoxLayout()
+        image_column.addWidget(self.original_image_label)
+        image_column.addWidget(self.processed_image_label)
+
+        filter_group = QGroupBox("Filtreler")
+        filter_layout = QVBoxLayout()
+        filter_layout.addWidget(self.mean_button)
+        filter_layout.addWidget(self.median_button)
+        filter_layout.addWidget(self.edge_button)
+        filter_layout.addWidget(self.smooth_button)
+        filter_layout.addWidget(self.sharpen_button)
+        filter_group.setLayout(filter_layout)
+
+        hist_group = QGroupBox("Histogram")
+        hist_layout = QVBoxLayout()
+        hist_layout.addWidget(self.hist_button)
+        hist_layout.addWidget(self.equalize_button)
+        hist_layout.addWidget(self.stretch_button)
+        hist_group.setLayout(hist_layout)
+
+        thresh_group = QGroupBox("Eşikleme")
+        thresh_layout = QVBoxLayout()
+        thresh_layout.addWidget(self.manual_thresh_button)
+        thresh_layout.addWidget(self.otsu_button)
+        thresh_layout.addWidget(self.kapur_button)
+        thresh_group.setLayout(thresh_layout)
+
+        morph_group = QGroupBox("Morfolojik")
+        morph_layout = QVBoxLayout()
+        morph_layout.addWidget(self.dilate_button)
+        morph_layout.addWidget(self.erode_button)
+        morph_group.setLayout(morph_layout)
+
+        geom_group = QGroupBox("Geometrik")
+        geom_layout = QVBoxLayout()
+        geom_layout.addWidget(self.rotate_button)
+        geom_layout.addWidget(self.shear_button)
+        geom_layout.addWidget(self.flip_h_button)
+        geom_layout.addWidget(self.flip_v_button)
+        geom_group.setLayout(geom_layout)
 
 
-        image_layout = QHBoxLayout()
-        image_layout.addWidget(self.original_image_label)
-        image_layout.addWidget(self.processed_image_label)
+        censke_group = QGroupBox("centroid & skeleton")
+        censke_layout = QVBoxLayout()
+        censke_layout.addWidget(self.centroid_button)
+        censke_layout.addWidget(self.skeleton_button)
+        censke_group.setLayout(censke_layout)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.open_button)
-        layout.addLayout(image_layout)
-        layout.addWidget(self.mean_button)
-        layout.addWidget(self.median_button)
-        layout.addWidget(self.edge_button)
-        layout.addWidget(self.hist_button)
-        layout.addWidget(self.equalize_button)
-        layout.addWidget(self.stretch_button)
-        layout.addWidget(self.manual_thresh_button)
-        layout.addWidget(self.otsu_button)
-        layout.addWidget(self.kapur_button)
-        layout.addWidget(self.dilate_button)
-        layout.addWidget(self.erode_button)
-        layout.addWidget(self.centroid_button)
-        layout.addWidget(self.skeleton_button)
-        layout.addWidget(self.smooth_button)
-        layout.addWidget(self.sharpen_button)
-        layout.addWidget(self.rotate_button)
-        layout.addWidget(self.shear_button)
-        layout.addWidget(self.flip_h_button)
-        layout.addWidget(self.flip_v_button)
-        layout.addWidget(self.undo_button)
-        layout.addWidget(self.commit_button)
-        layout.addWidget(self.flash_label)
+        control_group = QGroupBox("Genel")
+        control_layout = QVBoxLayout()
+        control_layout.addWidget(self.open_button)
+        control_layout.addWidget(self.undo_button)
+        control_layout.addWidget(self.commit_button)
+        control_layout.addWidget(self.flash_label)
+        control_group.setLayout(control_layout)
+
+        groups_column = QVBoxLayout()
+        groups_column.addWidget(control_group)
+        groups_column.addWidget(filter_group)
+        groups_column.addWidget(hist_group)
+        groups_column.addWidget(thresh_group)
+        groups_column.addWidget(morph_group)
+        groups_column.addWidget(geom_group)
+        groups_column.addWidget(censke_group)
+
+        main_layout = QHBoxLayout()
+        main_layout.addLayout(image_column, 3)  
+        main_layout.addLayout(groups_column, 2)
 
         container = QWidget()
-        container.setLayout(layout)
+        container.setLayout(main_layout)
         self.setCentralWidget(container)
 
     def load_image(self):

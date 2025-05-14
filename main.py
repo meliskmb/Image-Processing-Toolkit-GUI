@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtWidgets import QInputDialog
 from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 import numpy as np
 from PIL import Image
 
@@ -36,11 +36,14 @@ class ImageProcessor(QMainWindow):
         self.processed_image_label.setContextMenuPolicy(Qt.CustomContextMenu)
         self.processed_image_label.customContextMenuRequested.connect(self.show_context_menu_processed)
 
-
-        self.open_button = QPushButton("Görüntü Aç")
-        self.open_button.clicked.connect(self.load_image)
+        self.flash_label = QLabel("")
+        self.flash_label.setStyleSheet("color: green; font-weight: bold;")
+        self.flash_label.setAlignment(Qt.AlignCenter)
+        self.flash_label.hide()
 
         # Butonlar
+        self.open_button = QPushButton("Görüntü Aç")
+        self.open_button.clicked.connect(self.load_image)
         self.mean_button = QPushButton("Ortalama Filtresi")
         self.mean_button.clicked.connect(self.apply_mean)
         self.median_button = QPushButton("Ortanca Filtresi")
@@ -81,6 +84,9 @@ class ImageProcessor(QMainWindow):
         self.flip_v_button.clicked.connect(self.apply_flip_vertical)
         self.undo_button = QPushButton("Geri Al")
         self.undo_button.clicked.connect(self.undo_last_operation)
+        self.commit_button = QPushButton("Değişikliği Kaydet")
+        self.commit_button.clicked.connect(self.commit_changes)
+
 
 
         image_layout = QHBoxLayout()
@@ -110,6 +116,8 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.flip_h_button)
         layout.addWidget(self.flip_v_button)
         layout.addWidget(self.undo_button)
+        layout.addWidget(self.commit_button)
+        layout.addWidget(self.flash_label)
 
         container = QWidget()
         container.setLayout(layout)
@@ -361,6 +369,17 @@ class ImageProcessor(QMainWindow):
             self.show_processed_image(last_image)
         else:
             QMessageBox.information(self, "Geri Al", "Geri alınacak işlem yok.")
+
+    def commit_changes(self):
+        if self.processed_image:
+            self.original_image = self.processed_image.copy()
+            self.show_flash_message("Değişiklik kaydedildi.")
+
+    def show_flash_message(self, message, duration=2000): 
+        self.flash_label.setText(message)
+        self.flash_label.show()
+        QTimer.singleShot(duration, self.flash_label.hide)
+
 
 
 if __name__ == "__main__":

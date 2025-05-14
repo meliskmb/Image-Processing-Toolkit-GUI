@@ -25,6 +25,7 @@ class ImageProcessor(QMainWindow):
 
         self.original_image = None
         self.processed_image = None
+        self.history_stack = []
 
         self.original_image_label = QLabel("Orijinal Görüntü", self)
         self.original_image_label.setAlignment(Qt.AlignCenter)
@@ -78,6 +79,9 @@ class ImageProcessor(QMainWindow):
         self.flip_h_button.clicked.connect(self.apply_flip_horizontal)
         self.flip_v_button = QPushButton("Dikey Aynalama")
         self.flip_v_button.clicked.connect(self.apply_flip_vertical)
+        self.undo_button = QPushButton("Geri Al")
+        self.undo_button.clicked.connect(self.undo_last_operation)
+
 
         image_layout = QHBoxLayout()
         image_layout.addWidget(self.original_image_label)
@@ -105,6 +109,7 @@ class ImageProcessor(QMainWindow):
         layout.addWidget(self.shear_button)
         layout.addWidget(self.flip_h_button)
         layout.addWidget(self.flip_v_button)
+        layout.addWidget(self.undo_button)
 
         container = QWidget()
         container.setLayout(layout)
@@ -156,6 +161,7 @@ class ImageProcessor(QMainWindow):
             result = apply_mean_filter(np.array(gray))
             img = Image.fromarray(result)
             self.show_processed_image(img)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = img
 
     def apply_median(self):
@@ -164,6 +170,7 @@ class ImageProcessor(QMainWindow):
             result = apply_median_filter(np.array(gray))
             img = Image.fromarray(result)
             self.show_processed_image(img)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = img
 
     def apply_edge(self):
@@ -172,6 +179,7 @@ class ImageProcessor(QMainWindow):
             result = apply_edge_filter(np.array(gray))
             img = Image.fromarray(result)
             self.show_processed_image(img)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = img
 
     def show_histogram(self):
@@ -190,6 +198,7 @@ class ImageProcessor(QMainWindow):
         result = histogram_equalization(np.array(gray))
         out = Image.fromarray(result)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def stretch_contrast(self):
@@ -200,6 +209,7 @@ class ImageProcessor(QMainWindow):
         result = contrast_stretching(np.array(gray))
         out = Image.fromarray(result)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_manual_threshold(self):
@@ -212,6 +222,7 @@ class ImageProcessor(QMainWindow):
             binary = manual_threshold(np.array(gray), value)
             out = Image.fromarray(binary)
             self.show_processed_image(out)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = out
 
     def apply_otsu(self):
@@ -222,6 +233,7 @@ class ImageProcessor(QMainWindow):
         binary = otsu_threshold(np.array(gray))
         out = Image.fromarray(binary)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_kapur(self):
@@ -232,6 +244,7 @@ class ImageProcessor(QMainWindow):
         binary = kapur_threshold(np.array(gray))
         out = Image.fromarray(binary)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_dilation(self):
@@ -242,6 +255,7 @@ class ImageProcessor(QMainWindow):
         result = dilation(binary)
         out = Image.fromarray(result)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_erosion(self):
@@ -252,6 +266,7 @@ class ImageProcessor(QMainWindow):
         result = erosion(binary)
         out = Image.fromarray(result)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def show_centroid(self):
@@ -281,6 +296,7 @@ class ImageProcessor(QMainWindow):
             result = skeletonize(binary)
             out = Image.fromarray(result)
             self.show_processed_image(out)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = out
 
     def apply_smoothing(self):
@@ -291,6 +307,7 @@ class ImageProcessor(QMainWindow):
         result = apply_smoothing_filter(np.array(gray))
         out = Image.fromarray(result)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_sharpening(self):
@@ -301,6 +318,7 @@ class ImageProcessor(QMainWindow):
         result = apply_sharpen_filter(np.array(gray))
         out = Image.fromarray(result)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_rotation(self):
@@ -308,6 +326,7 @@ class ImageProcessor(QMainWindow):
         if img:
             out = rotate_image(img, angle_deg=90)
             self.show_processed_image(out)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = out
 
     def apply_shearing(self):
@@ -316,6 +335,7 @@ class ImageProcessor(QMainWindow):
         
         out = shear_image(self.original_image, shear_x=0.2, shear_y=0)
         self.show_processed_image(out)
+        self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
         self.processed_image = out
 
     def apply_flip_horizontal(self):
@@ -323,6 +343,7 @@ class ImageProcessor(QMainWindow):
         if img:
             out = flip_horizontal(img)
             self.show_processed_image(out)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = out
 
     def apply_flip_vertical(self):
@@ -330,7 +351,17 @@ class ImageProcessor(QMainWindow):
         if img:
             out = flip_vertical(img)
             self.show_processed_image(out)
+            self.history_stack.append(self.processed_image.copy() if self.processed_image else self.original_image.copy())
             self.processed_image = out
+
+    def undo_last_operation(self):
+        if self.history_stack:
+            last_image = self.history_stack.pop()
+            self.processed_image = last_image
+            self.show_processed_image(last_image)
+        else:
+            QMessageBox.information(self, "Geri Al", "Geri alınacak işlem yok.")
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

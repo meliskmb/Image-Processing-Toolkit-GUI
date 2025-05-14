@@ -328,13 +328,16 @@ class ImageProcessor(QMainWindow):
             centroid = compute_centroid(binary)
             if centroid:
                 img = result_img.copy()
-                draw = QPainter(QPixmap.fromImage(self.pil_to_pixmap(img).toImage()))
+                pixmap = QPixmap.fromImage(self.pil_to_pixmap(img).toImage())
+                painter = QPainter()
+                painter.begin(pixmap)
                 pen = QPen(Qt.red)
                 pen.setWidth(6)
-                draw.setPen(pen)
-                draw.drawPoint(*centroid)
-                draw.end()
-                self.show_processed_image(img)
+                painter.setPen(pen)
+                painter.drawPoint(*centroid)
+                painter.end()
+                self.processed_image_label.setPixmap(pixmap.scaled(self.processed_image_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                self.processed_image = img
 
     def apply_skeleton(self):
         if self.processed_image:

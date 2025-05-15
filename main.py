@@ -166,53 +166,49 @@ class ImageProcessor(QMainWindow):
 
         self.setStyleSheet("""
             QWidget {
-                background-color: #FFE5EC;
-                font-family: 'Segoe UI', sans-serif;
-                font-size: 13px;
-                color: #3A0CA3;
-                font-weight: bold;
+                background-color: #F5EBE0;  /* Daha sıcak, açık bej ton */
+                font-family: 'Segoe UI', sans-serif;    
             }
 
             QGroupBox {
-                background-color: #FFC2D1;
-                border: 1px solid #FFB3C6;
-                border-radius: 6px;
+                background-color: #D6CCC2;
+                border: 1px solid #D5BDAF;
+                border-radius: 8px;
                 margin-top: 10px;
-                padding: 5px;
             }
 
             QGroupBox::title {
                 subcontrol-origin: margin;
                 subcontrol-position: top center;
                 padding: 4px;
-                font-size: 13px;
+                color: #5A4A42;
                 font-weight: bold;
-                color: #3A0CA3;
+                font-size: 12pt;
             }
 
             QPushButton {
-                background-color: #FFB3C6;
-                color: #3A0CA3;
-                border: none;
-                padding: 6px 12px;
+                background-color: #F5EBE0;
+                border: 1px solid #D5BDAF;
                 border-radius: 6px;
-                font-weight: bold;
+                padding: 6px 12px;
+                color: #3E3E3E;
+                font-weight: 600;
             }
 
             QPushButton:hover {
-                background-color: #FF8FAB;
-                color: black;
+                background-color: #E3D5CA;
             }
 
             QLabel {
-                color: #3A0CA3;
-                font-weight: bold;
+                color: #4A4A4A;
+                font-weight: 600;
             }
 
             QScrollArea {
-                border: none;
+                background-color: transparent;
             }
         """)
+
 
 
     def load_image(self):
